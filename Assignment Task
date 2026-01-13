@@ -1,0 +1,46 @@
+#!/bin/bash
+
+CONF_FILE="sig.conf"
+
+# Check if file exists
+if [ ! -f "$CONF_FILE" ]; then
+    echo "sig.conf file not found!"
+    exit 1
+fi
+
+# Input 1: Component Name
+read -p "Enter Component Name (INGESTOR/JOINER/WRANGLER/VALIDATOR): " COMPONENT
+if [[ ! "$COMPONENT" =~ ^(INGESTOR|JOINER|WRANGLER|VALIDATOR)$ ]]; then
+    echo "Invalid Component Name"
+    exit 1
+fi
+
+# Input 2: Scale
+read -p "Enter Scale (LOW/MID/HIGH): " SCALE
+if [[ ! "$SCALE" =~ ^(LOW|MID|HIGH)$ ]]; then
+    echo "Invalid Scale"
+    exit 1
+fi
+
+# Input 3: View
+read -p "Enter View (Auction/Bid): " VIEW
+if [[ "$VIEW" == "Auction" ]]; then
+    VIEW_VALUE="vdopiasample"
+elif [[ "$VIEW" == "Bid" ]]; then
+    VIEW_VALUE="vdopiasample-bid"
+else
+    echo "Invalid View"
+    exit 1
+fi
+
+# Input 4: Count
+read -p "Enter Count (single digit 0-9): " COUNT
+if [[ ! "$COUNT" =~ ^[0-9]$ ]]; then
+    echo "Invalid Count"
+    exit 1
+fi
+
+# Update only the first matching line
+sed -i "0,/vdopia-etl=/s/.*/$VIEW_VALUE ; $SCALE ; $COMPONENT ; ETL ; vdopia-etl=$COUNT/" "$CONF_FILE"
+
+echo "sig.conf updated successfully"
